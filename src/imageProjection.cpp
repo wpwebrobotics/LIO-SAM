@@ -1,6 +1,6 @@
 #include "utility.h"
 #include "lio_sam/cloud_info.h"
-
+#include "pcl/filters/impl/filter.hpp"
 struct VelodynePointXYZIRT
 {
     PCL_ADD_POINT4D
@@ -236,6 +236,10 @@ public:
         cloudHeader = currentCloudMsg.header;
         timeScanCur = cloudHeader.stamp.toSec();
         timeScanEnd = timeScanCur + laserCloudIn->points.back().time;
+
+         // remove Nan
+        std::vector<int> indices;
+        pcl::removeNaNFromPointCloud(*laserCloudIn, *laserCloudIn, indices);
 
         // check dense flag
         if (laserCloudIn->is_dense == false)

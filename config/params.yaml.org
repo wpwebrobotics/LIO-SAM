@@ -1,19 +1,19 @@
 lio_sam:
 
   # Topics
-  pointCloudTopic: "velodyne_points"               # Point cloud data
-  imuTopic: "vectornav/IMU"                         # IMU data
+  pointCloudTopic: "points_raw"               # Point cloud data
+  imuTopic: "imu_raw"                         # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
   gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
-  lidarFrame: "velodyne"
+  lidarFrame: "base_link"
   baselinkFrame: "base_link"
   odometryFrame: "odom"
-  mapFrame: "local_origin" #"map"
+  mapFrame: "map"
 
   # GPS Settings
-  useImuHeadingInitialization: false           # if using GPS data, set to "true"
+  useImuHeadingInitialization: true           # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
   poseCovThreshold: 25.0                      # m^2, threshold for using GPS data
@@ -27,8 +27,8 @@ lio_sam:
   N_SCAN: 16                                  # number of lidar channel (i.e., Velodyne/Ouster: 16, 32, 64, 128, Livox Horizon: 6)
   Horizon_SCAN: 1800                          # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048, Livox Horizon: 4000)
   downsampleRate: 1                           # default: 1. Downsample your data if too many points. i.e., 16 = 64 / 4, 16 = 16 / 1
-  lidarMinRange: 0.75                          # default: 1.0, minimum lidar range to be used
-  lidarMaxRange: 100.0                       # default: 1000.0, maximum lidar range to be used
+  lidarMinRange: 1.0                          # default: 1.0, minimum lidar range to be used
+  lidarMaxRange: 1000.0                       # default: 1000.0, maximum lidar range to be used
 
   # IMU Settings
   imuAccNoise: 3.9939570888238808e-03
@@ -38,35 +38,21 @@ lio_sam:
   imuGravity: 9.80511
   imuRPYWeight: 0.01
 
-  # Extrinsics (lidar -> IMU)
-  extrinsicTrans: [0.0, 0.0, -0.20]  
-
-  # extrinsicRot:    [0, 1, 0,
-  #                 0, 0, -1]
-  # extrinsicRPY: [0,  1, 0,
-  #                -1, 0, 0,
-  #                 0, 0, 1]
-  #extrinsicRot: [1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, 1]
-  #extrinsicRPY: [1, 0, 0,
-  #                 0, 1, 0,
-  #                0, 0, 1]
-
-  #Z rivolta veros il basso (gravità positiva)
-  #extrinsicRot: [0.999076, -0.0367046, -0.0223499,
-  #               -0.0353996,  -0.99779,  0.0562256,
-  #               -0.0243642, -0.0553825,  -0.998168]
-
-  extrinsicRot: [1, 0, 0,
-                  0,-1, 0,
-                  0, 0, -1]
-
-
-  extrinsicRPY: [1, 0, 0,
+  # Extrinsics: T_lb (lidar -> imu)
+  extrinsicTrans: [0.0, 0.0, 0.0]
+  extrinsicRot: [-1, 0, 0,
                   0, 1, 0,
-                  0, 0, 1]
-  
+                  0, 0, -1]
+  extrinsicRPY: [0, -1, 0,
+                 1, 0, 0,
+                 0, 0, 1]
+  # extrinsicRot: [1, 0, 0,
+  #                 0, 1, 0,
+  #                 0, 0, 1]
+  # extrinsicRPY: [1, 0, 0,
+  #                 0, 1, 0,
+  #                 0, 0, 1]
+
   # LOAM feature threshold
   edgeThreshold: 1.0
   surfThreshold: 0.1
@@ -76,11 +62,7 @@ lio_sam:
   # voxel filter paprams
   odometrySurfLeafSize: 0.4                     # default: 0.4 - outdoor, 0.2 - indoor
   mappingCornerLeafSize: 0.2                    # default: 0.2 - outdoor, 0.1 - indoor
-  mappingSurfLeafSize: 0.4                     # default: 0.4 - outdoor, 0.2 - indoor
-
-  # odometrySurfLeafSize: 0.2                     # default: 0.4 - outdoor, 0.2 - indoor
-  # mappingCornerLeafSize: 0.1                    # default: 0.2 - outdoor, 0.1 - indoor
-  # mappingSurfLeafSize: 0.2                      # default: 0.4 - outdoor, 0.2 - indoor
+  mappingSurfLeafSize: 0.4                      # default: 0.4 - outdoor, 0.2 - indoor
 
   # robot motion constraint (in case you are using a 2D robot)
   z_tollerance: 1000                            # meters
@@ -97,7 +79,7 @@ lio_sam:
   surroundingKeyframeSearchRadius: 50.0         # meters, within n meters scan-to-map optimization (when loop closure disabled)
 
   # Loop closure
-  loopClosureEnableFlag: false
+  loopClosureEnableFlag: true
   loopClosureFrequency: 1.0                     # Hz, regulate loop closure constraint add frequency
   surroundingKeyframeSize: 50                   # submap size (when loop closure enabled)
   historyKeyframeSearchRadius: 15.0             # meters, key frame that is within n meters from current pose will be considerd for loop closure
